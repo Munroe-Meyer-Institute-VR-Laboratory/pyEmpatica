@@ -1,6 +1,9 @@
 import socket
 import threading
-import pickle
+
+
+class EmpaticaServerConnectError(Exception):
+    pass
 
 
 class EmpaticaCommandError(Exception):
@@ -30,13 +33,17 @@ class EmpaticaClient:
     def __init__(self):
         self.waiting = False
         self.buffer_size = 4096
-        self.socket_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket_conn.connect(('127.0.0.1', 28000))
+        try:
+            self.socket_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket_conn.connect(('127.0.0.1', 28000))
+        except ConnectionError as e:
+            raise EmpaticaServerConnectError(e)
         self.device = None
         self.device_list = []
         self.reading_thread = None
         self.reading = True
         self.start_receive_thread()
+        self.readings = 0
 
     def close(self):
         self.stop_reading_thread()
@@ -55,26 +62,33 @@ class EmpaticaClient:
 
     def handle_reading_receive(self):
         while self.reading:
-            return_bytes = self.socket_conn.recv(4096)
-            return_bytes = return_bytes.split()
-            if return_bytes[0] == b'R':
-                if b'ERR' in return_bytes:
-                    self.handle_error_code(return_bytes)
-                elif b'connection' in return_bytes:
-                    self.handle_error_code(return_bytes)
-                elif b'device' in return_bytes:
-                    self.handle_error_code(return_bytes)
-                elif b'device_list' in return_bytes:
-                    for i in range(4, len(return_bytes), 2):
-                        if return_bytes[i + 1] == b'Empatica_E4':
-                            self.device_list.append(return_bytes[i])
-                elif b'device_connect' in return_bytes:
-                    self.device.connected = True
-                elif b'device_subscribe' in return_bytes:
-                    self.device.subscribed_streams[return_bytes[2].decode("utf-8")] = \
-                        not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
-            elif return_bytes[0][0:2] == b'E4':
-                self.handle_data_stream(return_bytes)
+            try:
+                return_bytes = self.socket_conn.recv(4096)
+                return_bytes = return_bytes.split()
+                if return_bytes[0] == b'R':
+                    if b'ERR' in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b'connection' in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b'device' in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b'device_list' in return_bytes:
+                        for i in range(4, len(return_bytes), 2):
+                            if return_bytes[i + 1] == b'Empatica_E4':
+                                self.device_list.append(return_bytes[i])
+                    elif b'device_connect' in return_bytes:
+                        self.device.connected = True
+                    elif b'device_subscribe' in return_bytes:
+                        self.device.subscribed_streams[return_bytes[2].decode("utf-8")] = \
+                            not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
+                elif return_bytes[0][0:2] == b'E4':
+                    self.handle_data_stream(return_bytes)
+            except ConnectionAbortedError:
+                pass
+            except ConnectionResetError:
+                pass
+            except ConnectionError:
+                pass
 
     def stop_reading_thread(self):
         self.reading = False
@@ -88,6 +102,7 @@ class EmpaticaClient:
 
     def handle_data_stream(self, data):
         try:
+            self.readings += 1
             data_type = data[0][3:]
             if data_type == b'Acc':
                 self.device.acc_3d.append(float(data[2]))
@@ -178,27 +193,61 @@ class EmpaticaE4:
     def disconnect(self):
         command = b'device_disconnect\r\n'
         self.send(command)
+        self.client.stop_reading_thread()
 
     def save_readings(self, filename):
         with open(filename, "w") as file:
-            file.writelines(self.acc_3d)
-            file.writelines(self.acc_x)
-            file.writelines(self.acc_y)
-            file.writelines(self.acc_z)
-            file.writelines(self.acc_timestamps)
-            file.writelines(self.gsr)
-            file.writelines(self.gsr_timestamps)
-            file.writelines(self.bvp)
-            file.writelines(self.bvp_timestamps)
-            file.writelines(self.tmp)
-            file.writelines(self.tmp_timestamps)
-            file.writelines(self.ibi)
-            file.writelines(self.ibi_timestamps)
-            file.writelines(self.hr)
-            file.writelines(self.hr_timestamps)
-            file.writelines(self.bat)
-            file.writelines(self.bat_timestamps)
-            file.writelines(self.tag)
+            for reading in self.acc_3d:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.acc_x:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.acc_y:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.acc_z:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.acc_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.gsr:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.gsr_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.bvp:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.bvp_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.tmp:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.tmp_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.hr:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.hr_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.ibi:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.ibi_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.bat:
+                file.write(str(reading) + ",")
+            file.write("\n")
+            for reading in self.bat_timestamps:
+                file.write(str(reading) + ",")
+            file.write("\n")
 
     def clear_readings(self):
         self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
