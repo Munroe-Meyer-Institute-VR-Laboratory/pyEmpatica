@@ -6,6 +6,10 @@ class EmpaticaCommandError(Exception):
     pass
 
 
+class EmpaticaDataError(Exception):
+    pass
+
+
 class EmpaticaDataStreams:
     ACC = b'acc'
     BAT = b'bat'
@@ -33,9 +37,11 @@ class EmpaticaClient:
         self.device = None
         self.device_list = []
         self.reading_thread = None
-        self.reading = False
+        self.reading = True
+        self.start_receive_thread()
 
     def close(self):
+        self.stop_reading_thread()
         self.socket_conn.close()
 
     def send(self, packet):
@@ -52,7 +58,20 @@ class EmpaticaClient:
     def handle_reading_receive(self):
         while self.reading:
             return_bytes = self.socket_conn.recv(4096)
-            print(return_bytes)
+            return_bytes = return_bytes.split()
+            if return_bytes[0] == b'R':
+                if b'ERR' in return_bytes:
+                    self.handle_error_code(return_bytes)
+                elif b'connection' in return_bytes:
+                    self.handle_error_code(return_bytes)
+                elif b'device' in return_bytes:
+                    self.handle_error_code(return_bytes)
+                elif b'device_list' in return_bytes:
+                    for i in range(4, len(return_bytes), 2):
+                        if return_bytes[i + 1] == b'Empatica_E4':
+                            self.device_list.append(return_bytes[i])
+            elif return_bytes[0][0:2] == b'E4':
+                self.handle_data_stream(return_bytes)
 
     def stop_reading_thread(self):
         self.reading = False
@@ -64,21 +83,53 @@ class EmpaticaClient:
             message = message + err.decode("utf-8") + " "
         raise EmpaticaCommandError(message)
 
+    def handle_data_stream(self, data):
+        try:
+            data_type = data[0][3:]
+            if data_type == b'Acc':
+                self.device.acc_3d.append(float(data[2]))
+                self.device.acc_3d.append(float(data[3]))
+                self.device.acc_3d.append(float(data[4]))
+                self.device.acc_x.append(float(data[2]))
+                self.device.acc_y.append(float(data[3]))
+                self.device.acc_z.append(float(data[4]))
+                self.device.acc_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Bvp':
+                self.device.bvp.append(float(data[2]))
+                self.device.bvp_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Gsr':
+                self.device.gsr.append(float(data[2]))
+                self.device.gsr_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Temperature':
+                self.device.tmp.append(float(data[2]))
+                self.device.tmp_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Ibi':
+                self.device.ibi.append(float(data[2]))
+                self.device.ibi_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Hr':
+                self.device.hr.append(float(data[2]))
+                self.device.hr_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Battery':
+                self.device.bat.append(float(data[2]))
+                self.device.bat_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b'Tag':
+                self.device.tag.append(float(data[2]))
+                self.device.tag_timestamps(float(data[1]))
+                pass
+            else:
+                raise EmpaticaDataError(data)
+        except:
+            raise EmpaticaDataError(data)
+
     def list_connected_devices(self):
         self.socket_conn.send(b'device_list\r\n')
-        return_bytes = self.socket_conn.recv(4096)
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'device_list':
-            for i in range(4, len(return_bytes), 2):
-                if return_bytes[i + 1] == b'Empatica_E4':
-                    self.device_list.append(return_bytes[i])
-            if len(self.device_list) == 0:
-                return EmpaticaServerReturnCodes.NO_DEVICES_FOUND
-            else:
-                return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-        else:
-            print("Something went wrong, return:", return_bytes)
-            return False
 
 
 class EmpaticaE4:
@@ -104,29 +155,11 @@ class EmpaticaE4:
     def connect(self, device_name):
         command = b'device_connect ' + device_name + b'\r\n'
         self.send(command)
-        return_bytes = self.receive()
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'device_connect':
-            if return_bytes[2] == b'OK':
-                self.client.device = self
-                return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-            else:
-                self.client.handle_error_code(return_bytes[4:-1])
-        else:
-            self.client.handle_error_code(return_bytes)
+        self.client.device = self
 
     def disconnect(self):
         command = b'device_disconnect\r\n'
         self.send(command)
-        return_bytes = self.receive()
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'device_disconnect':
-            if return_bytes[3] == b'OK':
-                return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-            else:
-                self.client.handle_error_code(return_bytes[4:-1])
-        else:
-            self.client.handle_error_code(return_bytes)
 
     def save_readings(self, filename):
         raise NotImplemented
@@ -140,55 +173,15 @@ class EmpaticaE4:
     def subscribe_to_stream(self, stream):
         command = b'device_subscribe ' + stream + b' ON\r\n'
         self.send(command)
-        return_bytes = self.receive()
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'device_subscribe':
-            if return_bytes[2] == stream:
-                if return_bytes[3] == b'OK':
-                    return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-                else:
-                    self.client.handle_error_code(return_bytes[4:-1])
-        else:
-            self.client.handle_error_code(return_bytes)
 
     def unsubscribe_from_stream(self, stream):
         command = b'device_subscribe ' + stream + b' OFF\r\n'
         self.send(command)
-        return_bytes = self.receive()
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'device_subscribe':
-            if return_bytes[2] == stream:
-                if return_bytes[3] == b'OK':
-                    return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-                else:
-                    self.client.handle_error_code(return_bytes[4:-1])
-        else:
-            self.client.handle_error_code(return_bytes)
 
     def suspend_streaming(self):
         command = b'pause ON\r\n'
         self.send(command)
-        return_bytes = self.receive()
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'pause':
-            if return_bytes[2] == b'ERR':
-                self.client.handle_error_code(return_bytes[3:-1])
-            else:
-                self.client.stop_reading_thread()
-                return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-        else:
-            self.client.handle_error_code(return_bytes)
 
     def start_streaming(self):
         command = b'pause OFF\r\n'
         self.send(command)
-        return_bytes = self.receive()
-        return_bytes = return_bytes.split()
-        if return_bytes[0] == b'R' and return_bytes[1] == b'pause':
-            if return_bytes[2] == b'ERR':
-                self.client.handle_error_code(return_bytes[3:-1])
-            else:
-                self.client.start_receive_thread()
-                return EmpaticaServerReturnCodes.COMMAND_SUCCESS
-        else:
-            self.client.handle_error_code(return_bytes)
