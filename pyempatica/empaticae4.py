@@ -1,5 +1,6 @@
 import socket
 import threading
+import pickle
 
 
 class EmpaticaCommandError(Exception):
@@ -18,11 +19,7 @@ class EmpaticaDataStreams:
     IBI = b'ibi'
     TAG = b'tag'
     TMP = b'tmp'
-
-
-class EmpaticaServerReturnCodes:
-    COMMAND_SUCCESS = 0
-    NO_DEVICES_FOUND = 1
+    ALL_STREAMS = [b'acc', b'bat', b'bvp', b'gsr', b'ibi', b'tag', b'tmp']
 
 
 def start_e4_server(exe_path):
@@ -31,6 +28,7 @@ def start_e4_server(exe_path):
 
 class EmpaticaClient:
     def __init__(self):
+        self.waiting = False
         self.buffer_size = 4096
         self.socket_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_conn.connect(('127.0.0.1', 28000))
@@ -70,6 +68,11 @@ class EmpaticaClient:
                     for i in range(4, len(return_bytes), 2):
                         if return_bytes[i + 1] == b'Empatica_E4':
                             self.device_list.append(return_bytes[i])
+                elif b'device_connect' in return_bytes:
+                    self.device.connected = True
+                elif b'device_subscribe' in return_bytes:
+                    self.device.subscribed_streams[return_bytes[2].decode("utf-8")] = \
+                        not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
             elif return_bytes[0][0:2] == b'E4':
                 self.handle_data_stream(return_bytes)
 
@@ -135,8 +138,11 @@ class EmpaticaClient:
 class EmpaticaE4:
     def __init__(self, device_name):
         self.client = EmpaticaClient()
-        if self.connect(device_name) == EmpaticaServerReturnCodes.COMMAND_SUCCESS:
-            self.suspend_streaming()
+        self.connected = False
+        self.connect(device_name)
+        while not self.connected:
+            pass
+        self.suspend_streaming()
         self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
         self.bvp, self.bvp_timestamps = [], []
         self.gsr, self.gsr_timestamps = [], []
@@ -145,6 +151,18 @@ class EmpaticaE4:
         self.ibi, self.ibi_timestamps = [], []
         self.bat, self.bat_timestamps = [], []
         self.hr, self.hr_timestamps = [], []
+        self.subscribed_streams = {
+            "acc": False,
+            "bvp": False,
+            "gsr": False,
+            "tmp": False,
+            "tag": False,
+            "ibi": False,
+            "bat": False
+        }
+
+    def close(self):
+        self.client.close()
 
     def send(self, command):
         self.client.send(command)
@@ -162,21 +180,47 @@ class EmpaticaE4:
         self.send(command)
 
     def save_readings(self, filename):
-        raise NotImplemented
-
-    def grab_window(self):
-        raise NotImplemented
+        with open(filename, "w") as file:
+            file.writelines(self.acc_3d)
+            file.writelines(self.acc_x)
+            file.writelines(self.acc_y)
+            file.writelines(self.acc_z)
+            file.writelines(self.acc_timestamps)
+            file.writelines(self.gsr)
+            file.writelines(self.gsr_timestamps)
+            file.writelines(self.bvp)
+            file.writelines(self.bvp_timestamps)
+            file.writelines(self.tmp)
+            file.writelines(self.tmp_timestamps)
+            file.writelines(self.ibi)
+            file.writelines(self.ibi_timestamps)
+            file.writelines(self.hr)
+            file.writelines(self.hr_timestamps)
+            file.writelines(self.bat)
+            file.writelines(self.bat_timestamps)
+            file.writelines(self.tag)
 
     def clear_readings(self):
-        raise NotImplemented
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
 
     def subscribe_to_stream(self, stream):
         command = b'device_subscribe ' + stream + b' ON\r\n'
         self.send(command)
+        while not self.subscribed_streams.get(stream.decode("utf-8")):
+            pass
 
     def unsubscribe_from_stream(self, stream):
         command = b'device_subscribe ' + stream + b' OFF\r\n'
         self.send(command)
+        while self.subscribed_streams.get(stream.decode("utf-8")):
+            pass
 
     def suspend_streaming(self):
         command = b'pause ON\r\n'
