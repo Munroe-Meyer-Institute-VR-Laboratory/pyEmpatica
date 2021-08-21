@@ -106,7 +106,3 @@ class EmpaticaE4:
         command = b'pause OFF\r\n'
         self.send(command)
         return_bytes = self.receive()
-
-
-emp = EmpaticaClient()
-emp.socket_conn.close()
