@@ -28,6 +28,9 @@ class EmpaticaClient:
         self.device = None
         self.device_list = []
 
+    def close(self):
+        self.socket_conn.close()
+
     def send(self, packet):
         self.socket_conn.send(packet)
 
@@ -38,6 +41,9 @@ class EmpaticaClient:
         raise NotImplemented
 
     def handle_reading_receive(self):
+        raise NotImplemented
+
+    def handle_error_code(self, err):
         raise NotImplemented
 
     def list_connected_devices(self):
@@ -61,6 +67,14 @@ class EmpaticaE4:
     def __init__(self, device_name):
         self.client = EmpaticaClient()
         self.connect(device_name)
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
 
     def send(self, command):
         self.client.send(command)
@@ -91,18 +105,31 @@ class EmpaticaE4:
         command = b'device_subscribe ' + stream + b' ON\r\n'
         self.send(command)
         return_bytes = self.receive()
+        return_bytes = return_bytes.split()
+        if return_bytes[0] == b'R' and return_bytes[1] == b'device_subscribe':
+            if return_bytes[2] == stream:
+                if return_bytes[3] == b'OK':
+                    return EmpaticaServerReturnCodes.COMMAND_SUCCESS
+                else:
+
 
     def unsubscribe_from_stream(self, stream):
         command = b'device_subscribe ' + stream + b' OFF\r\n'
         self.send(command)
         return_bytes = self.receive()
+        return_bytes = return_bytes.split()
+        if return_bytes[0] == b'R' and return_bytes[1] == b'device_subscribe':
 
     def suspend_streaming(self):
         command = b'pause ON\r\n'
         self.send(command)
         return_bytes = self.receive()
+        return_bytes = return_bytes.split()
+        if return_bytes[0] == b'R' and return_bytes[1] == b'pause':
 
     def start_streaming(self):
         command = b'pause OFF\r\n'
         self.send(command)
         return_bytes = self.receive()
+        return_bytes = return_bytes.split()
+        if return_bytes[0] == b'R' and return_bytes[1] == b'pause':
