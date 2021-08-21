@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pyempatica.empaticae4 API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyempatica.empaticae4</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import socket
+import threading
+
+
+class EmpaticaServerConnectError(Exception):
+    pass
+
+
+class EmpaticaCommandError(Exception):
+    pass
+
+
+class EmpaticaDataError(Exception):
+    pass
+
+
+class EmpaticaDataStreams:
+    ACC = b&#39;acc&#39;
+    BAT = b&#39;bat&#39;
+    BVP = b&#39;bvp&#39;
+    GSR = b&#39;gsr&#39;
+    IBI = b&#39;ibi&#39;
+    TAG = b&#39;tag&#39;
+    TMP = b&#39;tmp&#39;
+    ALL_STREAMS = [b&#39;acc&#39;, b&#39;bat&#39;, b&#39;bvp&#39;, b&#39;gsr&#39;, b&#39;ibi&#39;, b&#39;tag&#39;, b&#39;tmp&#39;]
+
+
+def start_e4_server(exe_path):
+    raise NotImplemented
+
+
+class EmpaticaClient:
+    def __init__(self):
+        self.waiting = False
+        self.buffer_size = 4096
+        try:
+            self.socket_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket_conn.connect((&#39;127.0.0.1&#39;, 28000))
+        except ConnectionError as e:
+            raise EmpaticaServerConnectError(e)
+        self.device = None
+        self.device_list = []
+        self.reading_thread = None
+        self.reading = True
+        self.start_receive_thread()
+        self.readings = 0
+
+    def close(self):
+        self.stop_reading_thread()
+        self.socket_conn.close()
+
+    def send(self, packet):
+        self.socket_conn.send(packet)
+
+    def recv(self):
+        return self.socket_conn.recv(4096)
+
+    def start_receive_thread(self):
+        self.reading = True
+        self.reading_thread = threading.Thread(target=self.handle_reading_receive)
+        self.reading_thread.start()
+
+    def handle_reading_receive(self):
+        while self.reading:
+            try:
+                return_bytes = self.socket_conn.recv(4096)
+                return_bytes = return_bytes.split()
+                if return_bytes[0] == b&#39;R&#39;:
+                    if b&#39;ERR&#39; in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b&#39;connection&#39; in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b&#39;device&#39; in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b&#39;device_list&#39; in return_bytes:
+                        for i in range(4, len(return_bytes), 2):
+                            if return_bytes[i + 1] == b&#39;Empatica_E4&#39;:
+                                self.device_list.append(return_bytes[i])
+                    elif b&#39;device_connect&#39; in return_bytes:
+                        self.device.connected = True
+                    elif b&#39;device_subscribe&#39; in return_bytes:
+                        self.device.subscribed_streams[return_bytes[2].decode(&#34;utf-8&#34;)] = \
+                            not self.device.subscribed_streams.get(return_bytes[2].decode(&#34;utf-8&#34;))
+                elif return_bytes[0][0:2] == b&#39;E4&#39;:
+                    self.handle_data_stream(return_bytes)
+            except ConnectionAbortedError:
+                pass
+            except ConnectionResetError:
+                pass
+            except ConnectionError:
+                pass
+
+    def stop_reading_thread(self):
+        self.reading = False
+
+    @staticmethod
+    def handle_error_code(error):
+        message = &#34;&#34;
+        for err in error:
+            message = message + err.decode(&#34;utf-8&#34;) + &#34; &#34;
+        raise EmpaticaCommandError(message)
+
+    def handle_data_stream(self, data):
+        try:
+            self.readings += 1
+            data_type = data[0][3:]
+            if data_type == b&#39;Acc&#39;:
+                self.device.acc_3d.append(float(data[2]))
+                self.device.acc_3d.append(float(data[3]))
+                self.device.acc_3d.append(float(data[4]))
+                self.device.acc_x.append(float(data[2]))
+                self.device.acc_y.append(float(data[3]))
+                self.device.acc_z.append(float(data[4]))
+                self.device.acc_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Bvp&#39;:
+                self.device.bvp.append(float(data[2]))
+                self.device.bvp_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Gsr&#39;:
+                self.device.gsr.append(float(data[2]))
+                self.device.gsr_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Temperature&#39;:
+                self.device.tmp.append(float(data[2]))
+                self.device.tmp_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Ibi&#39;:
+                self.device.ibi.append(float(data[2]))
+                self.device.ibi_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Hr&#39;:
+                self.device.hr.append(float(data[2]))
+                self.device.hr_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Battery&#39;:
+                self.device.bat.append(float(data[2]))
+                self.device.bat_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Tag&#39;:
+                self.device.tag.append(float(data[2]))
+                self.device.tag_timestamps(float(data[1]))
+                pass
+            else:
+                raise EmpaticaDataError(data)
+        except:
+            raise EmpaticaDataError(data)
+
+    def list_connected_devices(self):
+        self.socket_conn.send(b&#39;device_list\r\n&#39;)
+
+
+class EmpaticaE4:
+    def __init__(self, device_name):
+        self.client = EmpaticaClient()
+        self.connected = False
+        self.connect(device_name)
+        while not self.connected:
+            pass
+        self.suspend_streaming()
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
+        self.subscribed_streams = {
+            &#34;acc&#34;: False,
+            &#34;bvp&#34;: False,
+            &#34;gsr&#34;: False,
+            &#34;tmp&#34;: False,
+            &#34;tag&#34;: False,
+            &#34;ibi&#34;: False,
+            &#34;bat&#34;: False
+        }
+
+    def close(self):
+        self.client.close()
+
+    def send(self, command):
+        self.client.send(command)
+
+    def receive(self):
+        return self.client.recv()
+
+    def connect(self, device_name):
+        command = b&#39;device_connect &#39; + device_name + b&#39;\r\n&#39;
+        self.send(command)
+        self.client.device = self
+
+    def disconnect(self):
+        command = b&#39;device_disconnect\r\n&#39;
+        self.send(command)
+        self.client.stop_reading_thread()
+
+    def save_readings(self, filename):
+        with open(filename, &#34;w&#34;) as file:
+            for reading in self.acc_3d:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_x:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_y:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_z:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.gsr:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.gsr_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bvp:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bvp_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.tmp:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.tmp_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.hr:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.hr_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.ibi:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.ibi_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bat:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bat_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+
+    def clear_readings(self):
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
+
+    def subscribe_to_stream(self, stream):
+        command = b&#39;device_subscribe &#39; + stream + b&#39; ON\r\n&#39;
+        self.send(command)
+        while not self.subscribed_streams.get(stream.decode(&#34;utf-8&#34;)):
+            pass
+
+    def unsubscribe_from_stream(self, stream):
+        command = b&#39;device_subscribe &#39; + stream + b&#39; OFF\r\n&#39;
+        self.send(command)
+        while self.subscribed_streams.get(stream.decode(&#34;utf-8&#34;)):
+            pass
+
+    def suspend_streaming(self):
+        command = b&#39;pause ON\r\n&#39;
+        self.send(command)
+
+    def start_streaming(self):
+        command = b&#39;pause OFF\r\n&#39;
+        self.send(command)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pyempatica.empaticae4.start_e4_server"><code class="name flex">
+<span>def <span class="ident">start_e4_server</span></span>(<span>exe_path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start_e4_server(exe_path):
+    raise NotImplemented</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pyempatica.empaticae4.EmpaticaClient"><code class="flex name class">
+<span>class <span class="ident">EmpaticaClient</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmpaticaClient:
+    def __init__(self):
+        self.waiting = False
+        self.buffer_size = 4096
+        try:
+            self.socket_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket_conn.connect((&#39;127.0.0.1&#39;, 28000))
+        except ConnectionError as e:
+            raise EmpaticaServerConnectError(e)
+        self.device = None
+        self.device_list = []
+        self.reading_thread = None
+        self.reading = True
+        self.start_receive_thread()
+        self.readings = 0
+
+    def close(self):
+        self.stop_reading_thread()
+        self.socket_conn.close()
+
+    def send(self, packet):
+        self.socket_conn.send(packet)
+
+    def recv(self):
+        return self.socket_conn.recv(4096)
+
+    def start_receive_thread(self):
+        self.reading = True
+        self.reading_thread = threading.Thread(target=self.handle_reading_receive)
+        self.reading_thread.start()
+
+    def handle_reading_receive(self):
+        while self.reading:
+            try:
+                return_bytes = self.socket_conn.recv(4096)
+                return_bytes = return_bytes.split()
+                if return_bytes[0] == b&#39;R&#39;:
+                    if b&#39;ERR&#39; in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b&#39;connection&#39; in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b&#39;device&#39; in return_bytes:
+                        self.handle_error_code(return_bytes)
+                    elif b&#39;device_list&#39; in return_bytes:
+                        for i in range(4, len(return_bytes), 2):
+                            if return_bytes[i + 1] == b&#39;Empatica_E4&#39;:
+                                self.device_list.append(return_bytes[i])
+                    elif b&#39;device_connect&#39; in return_bytes:
+                        self.device.connected = True
+                    elif b&#39;device_subscribe&#39; in return_bytes:
+                        self.device.subscribed_streams[return_bytes[2].decode(&#34;utf-8&#34;)] = \
+                            not self.device.subscribed_streams.get(return_bytes[2].decode(&#34;utf-8&#34;))
+                elif return_bytes[0][0:2] == b&#39;E4&#39;:
+                    self.handle_data_stream(return_bytes)
+            except ConnectionAbortedError:
+                pass
+            except ConnectionResetError:
+                pass
+            except ConnectionError:
+                pass
+
+    def stop_reading_thread(self):
+        self.reading = False
+
+    @staticmethod
+    def handle_error_code(error):
+        message = &#34;&#34;
+        for err in error:
+            message = message + err.decode(&#34;utf-8&#34;) + &#34; &#34;
+        raise EmpaticaCommandError(message)
+
+    def handle_data_stream(self, data):
+        try:
+            self.readings += 1
+            data_type = data[0][3:]
+            if data_type == b&#39;Acc&#39;:
+                self.device.acc_3d.append(float(data[2]))
+                self.device.acc_3d.append(float(data[3]))
+                self.device.acc_3d.append(float(data[4]))
+                self.device.acc_x.append(float(data[2]))
+                self.device.acc_y.append(float(data[3]))
+                self.device.acc_z.append(float(data[4]))
+                self.device.acc_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Bvp&#39;:
+                self.device.bvp.append(float(data[2]))
+                self.device.bvp_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Gsr&#39;:
+                self.device.gsr.append(float(data[2]))
+                self.device.gsr_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Temperature&#39;:
+                self.device.tmp.append(float(data[2]))
+                self.device.tmp_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Ibi&#39;:
+                self.device.ibi.append(float(data[2]))
+                self.device.ibi_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Hr&#39;:
+                self.device.hr.append(float(data[2]))
+                self.device.hr_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Battery&#39;:
+                self.device.bat.append(float(data[2]))
+                self.device.bat_timestamps.append(float(data[1]))
+                pass
+            elif data_type == b&#39;Tag&#39;:
+                self.device.tag.append(float(data[2]))
+                self.device.tag_timestamps(float(data[1]))
+                pass
+            else:
+                raise EmpaticaDataError(data)
+        except:
+            raise EmpaticaDataError(data)
+
+    def list_connected_devices(self):
+        self.socket_conn.send(b&#39;device_list\r\n&#39;)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyempatica.empaticae4.EmpaticaClient.handle_error_code"><code class="name flex">
+<span>def <span class="ident">handle_error_code</span></span>(<span>error)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def handle_error_code(error):
+    message = &#34;&#34;
+    for err in error:
+        message = message + err.decode(&#34;utf-8&#34;) + &#34; &#34;
+    raise EmpaticaCommandError(message)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pyempatica.empaticae4.EmpaticaClient.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.stop_reading_thread()
+    self.socket_conn.close()</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.handle_data_stream"><code class="name flex">
+<span>def <span class="ident">handle_data_stream</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def handle_data_stream(self, data):
+    try:
+        self.readings += 1
+        data_type = data[0][3:]
+        if data_type == b&#39;Acc&#39;:
+            self.device.acc_3d.append(float(data[2]))
+            self.device.acc_3d.append(float(data[3]))
+            self.device.acc_3d.append(float(data[4]))
+            self.device.acc_x.append(float(data[2]))
+            self.device.acc_y.append(float(data[3]))
+            self.device.acc_z.append(float(data[4]))
+            self.device.acc_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Bvp&#39;:
+            self.device.bvp.append(float(data[2]))
+            self.device.bvp_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Gsr&#39;:
+            self.device.gsr.append(float(data[2]))
+            self.device.gsr_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Temperature&#39;:
+            self.device.tmp.append(float(data[2]))
+            self.device.tmp_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Ibi&#39;:
+            self.device.ibi.append(float(data[2]))
+            self.device.ibi_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Hr&#39;:
+            self.device.hr.append(float(data[2]))
+            self.device.hr_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Battery&#39;:
+            self.device.bat.append(float(data[2]))
+            self.device.bat_timestamps.append(float(data[1]))
+            pass
+        elif data_type == b&#39;Tag&#39;:
+            self.device.tag.append(float(data[2]))
+            self.device.tag_timestamps(float(data[1]))
+            pass
+        else:
+            raise EmpaticaDataError(data)
+    except:
+        raise EmpaticaDataError(data)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.handle_reading_receive"><code class="name flex">
+<span>def <span class="ident">handle_reading_receive</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def handle_reading_receive(self):
+    while self.reading:
+        try:
+            return_bytes = self.socket_conn.recv(4096)
+            return_bytes = return_bytes.split()
+            if return_bytes[0] == b&#39;R&#39;:
+                if b&#39;ERR&#39; in return_bytes:
+                    self.handle_error_code(return_bytes)
+                elif b&#39;connection&#39; in return_bytes:
+                    self.handle_error_code(return_bytes)
+                elif b&#39;device&#39; in return_bytes:
+                    self.handle_error_code(return_bytes)
+                elif b&#39;device_list&#39; in return_bytes:
+                    for i in range(4, len(return_bytes), 2):
+                        if return_bytes[i + 1] == b&#39;Empatica_E4&#39;:
+                            self.device_list.append(return_bytes[i])
+                elif b&#39;device_connect&#39; in return_bytes:
+                    self.device.connected = True
+                elif b&#39;device_subscribe&#39; in return_bytes:
+                    self.device.subscribed_streams[return_bytes[2].decode(&#34;utf-8&#34;)] = \
+                        not self.device.subscribed_streams.get(return_bytes[2].decode(&#34;utf-8&#34;))
+            elif return_bytes[0][0:2] == b&#39;E4&#39;:
+                self.handle_data_stream(return_bytes)
+        except ConnectionAbortedError:
+            pass
+        except ConnectionResetError:
+            pass
+        except ConnectionError:
+            pass</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.list_connected_devices"><code class="name flex">
+<span>def <span class="ident">list_connected_devices</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_connected_devices(self):
+    self.socket_conn.send(b&#39;device_list\r\n&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.recv"><code class="name flex">
+<span>def <span class="ident">recv</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def recv(self):
+    return self.socket_conn.recv(4096)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.send"><code class="name flex">
+<span>def <span class="ident">send</span></span>(<span>self, packet)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send(self, packet):
+    self.socket_conn.send(packet)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.start_receive_thread"><code class="name flex">
+<span>def <span class="ident">start_receive_thread</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start_receive_thread(self):
+    self.reading = True
+    self.reading_thread = threading.Thread(target=self.handle_reading_receive)
+    self.reading_thread.start()</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaClient.stop_reading_thread"><code class="name flex">
+<span>def <span class="ident">stop_reading_thread</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stop_reading_thread(self):
+    self.reading = False</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaCommandError"><code class="flex name class">
+<span>class <span class="ident">EmpaticaCommandError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmpaticaCommandError(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataError"><code class="flex name class">
+<span>class <span class="ident">EmpaticaDataError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmpaticaDataError(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams"><code class="flex name class">
+<span>class <span class="ident">EmpaticaDataStreams</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmpaticaDataStreams:
+    ACC = b&#39;acc&#39;
+    BAT = b&#39;bat&#39;
+    BVP = b&#39;bvp&#39;
+    GSR = b&#39;gsr&#39;
+    IBI = b&#39;ibi&#39;
+    TAG = b&#39;tag&#39;
+    TMP = b&#39;tmp&#39;
+    ALL_STREAMS = [b&#39;acc&#39;, b&#39;bat&#39;, b&#39;bvp&#39;, b&#39;gsr&#39;, b&#39;ibi&#39;, b&#39;tag&#39;, b&#39;tmp&#39;]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.ACC"><code class="name">var <span class="ident">ACC</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.ALL_STREAMS"><code class="name">var <span class="ident">ALL_STREAMS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.BAT"><code class="name">var <span class="ident">BAT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.BVP"><code class="name">var <span class="ident">BVP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.GSR"><code class="name">var <span class="ident">GSR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.IBI"><code class="name">var <span class="ident">IBI</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.TAG"><code class="name">var <span class="ident">TAG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaDataStreams.TMP"><code class="name">var <span class="ident">TMP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4"><code class="flex name class">
+<span>class <span class="ident">EmpaticaE4</span></span>
+<span>(</span><span>device_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmpaticaE4:
+    def __init__(self, device_name):
+        self.client = EmpaticaClient()
+        self.connected = False
+        self.connect(device_name)
+        while not self.connected:
+            pass
+        self.suspend_streaming()
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
+        self.subscribed_streams = {
+            &#34;acc&#34;: False,
+            &#34;bvp&#34;: False,
+            &#34;gsr&#34;: False,
+            &#34;tmp&#34;: False,
+            &#34;tag&#34;: False,
+            &#34;ibi&#34;: False,
+            &#34;bat&#34;: False
+        }
+
+    def close(self):
+        self.client.close()
+
+    def send(self, command):
+        self.client.send(command)
+
+    def receive(self):
+        return self.client.recv()
+
+    def connect(self, device_name):
+        command = b&#39;device_connect &#39; + device_name + b&#39;\r\n&#39;
+        self.send(command)
+        self.client.device = self
+
+    def disconnect(self):
+        command = b&#39;device_disconnect\r\n&#39;
+        self.send(command)
+        self.client.stop_reading_thread()
+
+    def save_readings(self, filename):
+        with open(filename, &#34;w&#34;) as file:
+            for reading in self.acc_3d:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_x:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_y:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_z:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.gsr:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.gsr_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bvp:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bvp_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.tmp:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.tmp_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.hr:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.hr_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.ibi:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.ibi_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bat:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bat_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+
+    def clear_readings(self):
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
+
+    def subscribe_to_stream(self, stream):
+        command = b&#39;device_subscribe &#39; + stream + b&#39; ON\r\n&#39;
+        self.send(command)
+        while not self.subscribed_streams.get(stream.decode(&#34;utf-8&#34;)):
+            pass
+
+    def unsubscribe_from_stream(self, stream):
+        command = b&#39;device_subscribe &#39; + stream + b&#39; OFF\r\n&#39;
+        self.send(command)
+        while self.subscribed_streams.get(stream.decode(&#34;utf-8&#34;)):
+            pass
+
+    def suspend_streaming(self):
+        command = b&#39;pause ON\r\n&#39;
+        self.send(command)
+
+    def start_streaming(self):
+        command = b&#39;pause OFF\r\n&#39;
+        self.send(command)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pyempatica.empaticae4.EmpaticaE4.clear_readings"><code class="name flex">
+<span>def <span class="ident">clear_readings</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_readings(self):
+    self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+    self.bvp, self.bvp_timestamps = [], []
+    self.gsr, self.gsr_timestamps = [], []
+    self.tmp, self.tmp_timestamps = [], []
+    self.tag, self.tag_timestamps = [], []
+    self.ibi, self.ibi_timestamps = [], []
+    self.bat, self.bat_timestamps = [], []
+    self.hr, self.hr_timestamps = [], []</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.client.close()</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.connect"><code class="name flex">
+<span>def <span class="ident">connect</span></span>(<span>self, device_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def connect(self, device_name):
+    command = b&#39;device_connect &#39; + device_name + b&#39;\r\n&#39;
+    self.send(command)
+    self.client.device = self</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.disconnect"><code class="name flex">
+<span>def <span class="ident">disconnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disconnect(self):
+    command = b&#39;device_disconnect\r\n&#39;
+    self.send(command)
+    self.client.stop_reading_thread()</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.receive"><code class="name flex">
+<span>def <span class="ident">receive</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def receive(self):
+    return self.client.recv()</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.save_readings"><code class="name flex">
+<span>def <span class="ident">save_readings</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_readings(self, filename):
+    with open(filename, &#34;w&#34;) as file:
+        for reading in self.acc_3d:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.acc_x:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.acc_y:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.acc_z:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.acc_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.gsr:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.gsr_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.bvp:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.bvp_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.tmp:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.tmp_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.hr:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.hr_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.ibi:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.ibi_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.bat:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)
+        for reading in self.bat_timestamps:
+            file.write(str(reading) + &#34;,&#34;)
+        file.write(&#34;\n&#34;)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.send"><code class="name flex">
+<span>def <span class="ident">send</span></span>(<span>self, command)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send(self, command):
+    self.client.send(command)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.start_streaming"><code class="name flex">
+<span>def <span class="ident">start_streaming</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start_streaming(self):
+    command = b&#39;pause OFF\r\n&#39;
+    self.send(command)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.subscribe_to_stream"><code class="name flex">
+<span>def <span class="ident">subscribe_to_stream</span></span>(<span>self, stream)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def subscribe_to_stream(self, stream):
+    command = b&#39;device_subscribe &#39; + stream + b&#39; ON\r\n&#39;
+    self.send(command)
+    while not self.subscribed_streams.get(stream.decode(&#34;utf-8&#34;)):
+        pass</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.suspend_streaming"><code class="name flex">
+<span>def <span class="ident">suspend_streaming</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def suspend_streaming(self):
+    command = b&#39;pause ON\r\n&#39;
+    self.send(command)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.unsubscribe_from_stream"><code class="name flex">
+<span>def <span class="ident">unsubscribe_from_stream</span></span>(<span>self, stream)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unsubscribe_from_stream(self, stream):
+    command = b&#39;device_subscribe &#39; + stream + b&#39; OFF\r\n&#39;
+    self.send(command)
+    while self.subscribed_streams.get(stream.decode(&#34;utf-8&#34;)):
+        pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaServerConnectError"><code class="flex name class">
+<span>class <span class="ident">EmpaticaServerConnectError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmpaticaServerConnectError(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyempatica" href="index.html">pyempatica</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pyempatica.empaticae4.start_e4_server" href="#pyempatica.empaticae4.start_e4_server">start_e4_server</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pyempatica.empaticae4.EmpaticaClient" href="#pyempatica.empaticae4.EmpaticaClient">EmpaticaClient</a></code></h4>
+<ul class="">
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.close" href="#pyempatica.empaticae4.EmpaticaClient.close">close</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.handle_data_stream" href="#pyempatica.empaticae4.EmpaticaClient.handle_data_stream">handle_data_stream</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.handle_error_code" href="#pyempatica.empaticae4.EmpaticaClient.handle_error_code">handle_error_code</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.handle_reading_receive" href="#pyempatica.empaticae4.EmpaticaClient.handle_reading_receive">handle_reading_receive</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.list_connected_devices" href="#pyempatica.empaticae4.EmpaticaClient.list_connected_devices">list_connected_devices</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.recv" href="#pyempatica.empaticae4.EmpaticaClient.recv">recv</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.send" href="#pyempatica.empaticae4.EmpaticaClient.send">send</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.start_receive_thread" href="#pyempatica.empaticae4.EmpaticaClient.start_receive_thread">start_receive_thread</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaClient.stop_reading_thread" href="#pyempatica.empaticae4.EmpaticaClient.stop_reading_thread">stop_reading_thread</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyempatica.empaticae4.EmpaticaCommandError" href="#pyempatica.empaticae4.EmpaticaCommandError">EmpaticaCommandError</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pyempatica.empaticae4.EmpaticaDataError" href="#pyempatica.empaticae4.EmpaticaDataError">EmpaticaDataError</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pyempatica.empaticae4.EmpaticaDataStreams" href="#pyempatica.empaticae4.EmpaticaDataStreams">EmpaticaDataStreams</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.ACC" href="#pyempatica.empaticae4.EmpaticaDataStreams.ACC">ACC</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.ALL_STREAMS" href="#pyempatica.empaticae4.EmpaticaDataStreams.ALL_STREAMS">ALL_STREAMS</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.BAT" href="#pyempatica.empaticae4.EmpaticaDataStreams.BAT">BAT</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.BVP" href="#pyempatica.empaticae4.EmpaticaDataStreams.BVP">BVP</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.GSR" href="#pyempatica.empaticae4.EmpaticaDataStreams.GSR">GSR</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.IBI" href="#pyempatica.empaticae4.EmpaticaDataStreams.IBI">IBI</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.TAG" href="#pyempatica.empaticae4.EmpaticaDataStreams.TAG">TAG</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaDataStreams.TMP" href="#pyempatica.empaticae4.EmpaticaDataStreams.TMP">TMP</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyempatica.empaticae4.EmpaticaE4" href="#pyempatica.empaticae4.EmpaticaE4">EmpaticaE4</a></code></h4>
+<ul class="">
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.clear_readings" href="#pyempatica.empaticae4.EmpaticaE4.clear_readings">clear_readings</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.close" href="#pyempatica.empaticae4.EmpaticaE4.close">close</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.connect" href="#pyempatica.empaticae4.EmpaticaE4.connect">connect</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.disconnect" href="#pyempatica.empaticae4.EmpaticaE4.disconnect">disconnect</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.receive" href="#pyempatica.empaticae4.EmpaticaE4.receive">receive</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.save_readings" href="#pyempatica.empaticae4.EmpaticaE4.save_readings">save_readings</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.send" href="#pyempatica.empaticae4.EmpaticaE4.send">send</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.start_streaming" href="#pyempatica.empaticae4.EmpaticaE4.start_streaming">start_streaming</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.subscribe_to_stream" href="#pyempatica.empaticae4.EmpaticaE4.subscribe_to_stream">subscribe_to_stream</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.suspend_streaming" href="#pyempatica.empaticae4.EmpaticaE4.suspend_streaming">suspend_streaming</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.unsubscribe_from_stream" href="#pyempatica.empaticae4.EmpaticaE4.unsubscribe_from_stream">unsubscribe_from_stream</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyempatica.empaticae4.EmpaticaServerConnectError" href="#pyempatica.empaticae4.EmpaticaServerConnectError">EmpaticaServerConnectError</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
