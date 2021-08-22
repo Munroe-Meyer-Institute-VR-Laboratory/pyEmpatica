@@ -1,5 +1,6 @@
 import socket
 import threading
+import subprocess
 
 
 class EmpaticaServerConnectError(Exception):
@@ -38,7 +39,12 @@ class EmpaticaDataStreams:
 
 
 def start_e4_server(exe_path):
-    raise NotImplemented
+    """
+    Starts the Empatica Streaming Server.
+    :param exe_path: str: full path to Empatica Streaming Server executable
+    :return: None.
+    """
+    subprocess.Popen(exe_path)
 
 
 class EmpaticaClient:
