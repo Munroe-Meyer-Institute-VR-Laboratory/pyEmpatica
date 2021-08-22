@@ -3,18 +3,30 @@ import threading
 
 
 class EmpaticaServerConnectError(Exception):
+    """
+    Custom exception for when the socket fails to connect to the Empatica Server.
+    """
     pass
 
 
 class EmpaticaCommandError(Exception):
+    """
+    Custom exception for when an Empatica response is an error message.
+    """
     pass
 
 
 class EmpaticaDataError(Exception):
+    """
+    Custom exception for when there is an error when parsing a data message.
+    """
     pass
 
 
 class EmpaticaDataStreams:
+    """
+    Applicable data streams that can be received from the Empatica server.
+    """
     ACC = b'acc'
     BAT = b'bat'
     BVP = b'bvp'
@@ -30,9 +42,14 @@ def start_e4_server(exe_path):
 
 
 class EmpaticaClient:
+    """
+    Client object to handle the socket connection to the Empatica Server.
+    """
     def __init__(self):
+        """
+        Initializes the socket connection and starts the data reception thread.
+        """
         self.waiting = False
-        self.buffer_size = 4096
         try:
             self.socket_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket_conn.connect(('127.0.0.1', 28000))
@@ -46,21 +63,43 @@ class EmpaticaClient:
         self.readings = 0
 
     def close(self):
+        """
+        Stops the reading thread and closes the socket.
+        :return: None.
+        """
         self.stop_reading_thread()
         self.socket_conn.close()
 
     def send(self, packet):
+        """
+        Blocking method to send a packet to the Empatica Server.
+        :param packet: str command
+        :return: None.
+        """
         self.socket_conn.send(packet)
 
     def recv(self):
+        """
+        Blocking method to receive a packet from the Empatica Server.
+        :return: bytes-like.
+        """
         return self.socket_conn.recv(4096)
 
     def start_receive_thread(self):
+        """
+        Starts the receiving thread to handle responses from Empatica Server.
+        :return: None.
+        """
         self.reading = True
         self.reading_thread = threading.Thread(target=self.handle_reading_receive)
         self.reading_thread.start()
 
+    # https://developer.empatica.com/windows-streaming-server-commands.html
     def handle_reading_receive(self):
+        """
+        Parses and handles packets received from the Empatica Server.
+        :return: None.
+        """
         while self.reading:
             try:
                 return_bytes = self.socket_conn.recv(4096)
@@ -91,16 +130,30 @@ class EmpaticaClient:
                 pass
 
     def stop_reading_thread(self):
+        """
+        Sets the reading thread variable to False to stop the reading thread.
+        :return: None.
+        """
         self.reading = False
 
     @staticmethod
     def handle_error_code(error):
+        """
+        Parses error code for formatting in Exception message.
+        :param error: bytes-like error message.
+        :return: None.
+        """
         message = ""
         for err in error:
             message = message + err.decode("utf-8") + " "
         raise EmpaticaCommandError(message)
 
     def handle_data_stream(self, data):
+        """
+        Parses and saves the data received from the Empatica Server.
+        :param data: bytes-like packet.
+        :return: None.
+        """
         try:
             self.readings += 1
             data_type = data[0][3:]
@@ -147,11 +200,22 @@ class EmpaticaClient:
             raise EmpaticaDataError(data)
 
     def list_connected_devices(self):
+        """
+        Sends the list connected devices command to get the devices auto-connected over BLE.
+        :return: None
+        """
         self.socket_conn.send(b'device_list\r\n')
 
 
 class EmpaticaE4:
+    """
+    Class to wrap the client socket connection and configure the data streams.
+    """
     def __init__(self, device_name):
+        """
+        Initializes the socket connection and connects the Empatica E4 specified.
+        :param device_name: str: The Empatica E4 to connect to
+        """
         self.client = EmpaticaClient()
         self.connected = False
         self.connect(device_name)
@@ -177,25 +241,52 @@ class EmpaticaE4:
         }
 
     def close(self):
+        """
+        Closes the socket connection.
+        :return: None.
+        """
         self.client.close()
 
     def send(self, command):
+        """
+        Blocking method to send data to Empatica Server.
+        :param command: bytes-like: data to send
+        :return: None.
+        """
         self.client.send(command)
 
     def receive(self):
+        """
+        Blocking method to receive data from Empatica Server.
+        :return: bytes-like: packet received.
+        """
         return self.client.recv()
 
     def connect(self, device_name):
+        """
+        Sends the connect command packet to the Empatica Server.
+        :param device_name: bytes-like: Empatica E4 to connect to
+        :return: None.
+        """
         command = b'device_connect ' + device_name + b'\r\n'
         self.send(command)
         self.client.device = self
 
     def disconnect(self):
+        """
+        Sends the disconnect command packet to the Empatica Server.
+        :return: None.
+        """
         command = b'device_disconnect\r\n'
         self.send(command)
         self.client.stop_reading_thread()
 
     def save_readings(self, filename):
+        """
+        Saves the readings currently collected to the specified filepath.
+        :param filename: str: full path to file to save to
+        :return: None.
+        """
         with open(filename, "w") as file:
             for reading in self.acc_3d:
                 file.write(str(reading) + ",")
@@ -250,6 +341,10 @@ class EmpaticaE4:
             file.write("\n")
 
     def clear_readings(self):
+        """
+        Clears the readings collected.
+        :return: None.
+        """
         self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
         self.bvp, self.bvp_timestamps = [], []
         self.gsr, self.gsr_timestamps = [], []
@@ -260,21 +355,39 @@ class EmpaticaE4:
         self.hr, self.hr_timestamps = [], []
 
     def subscribe_to_stream(self, stream):
+        """
+        Subscribes the socket connection to a data stream, blocks until the Empatica Server responds.
+        :param stream: bytes-like: data to stream.
+        :return: None.
+        """
         command = b'device_subscribe ' + stream + b' ON\r\n'
         self.send(command)
         while not self.subscribed_streams.get(stream.decode("utf-8")):
             pass
 
     def unsubscribe_from_stream(self, stream):
+        """
+        Unsubscribes the socket connection from a data stream, blocks until the Empatica Server responds.
+        :param stream: bytes-like: data to stop streaming.
+        :return: None.
+        """
         command = b'device_subscribe ' + stream + b' OFF\r\n'
         self.send(command)
         while self.subscribed_streams.get(stream.decode("utf-8")):
             pass
 
     def suspend_streaming(self):
+        """
+        Stops the data streaming from the Empatica Server for the Empatica E4.
+        :return: None.
+        """
         command = b'pause ON\r\n'
         self.send(command)
 
     def start_streaming(self):
+        """
+        Starts the data streaming from the Empatica Server for the Empatica E4.
+        :return: None.
+        """
         command = b'pause OFF\r\n'
         self.send(command)
