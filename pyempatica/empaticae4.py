@@ -52,6 +52,7 @@ class EmpaticaClient:
     """
     Client object to handle the socket connection to the Empatica Server.
     """
+
     def __init__(self):
         """
         Initializes the socket connection and starts the data reception thread.
@@ -218,6 +219,7 @@ class EmpaticaE4:
     """
     Class to wrap the client socket connection and configure the data streams.
     """
+
     def __init__(self, device_name, window_size=None):
         """
         Initializes the socket connection and connects the Empatica E4 specified.
@@ -238,6 +240,7 @@ class EmpaticaE4:
         self.ibi, self.ibi_timestamps = [], []
         self.bat, self.bat_timestamps = [], []
         self.hr, self.hr_timestamps = [], []
+        self.windowed_readings = []
         self.subscribed_streams = {
             "acc": False,
             "bvp": False,
@@ -255,7 +258,26 @@ class EmpaticaE4:
                 self.split_window()
 
     def split_window(self):
-        pass
+        # Save all the readings to our window
+        self.windowed_readings.append(
+            (self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps,
+             self.bvp, self.bvp_timestamps,
+             self.gsr, self.gsr_timestamps,
+             self.tmp, self.tmp_timestamps,
+             self.tag, self.tag_timestamps,
+             self.ibi, self.ibi_timestamps,
+             self.bat, self.bat_timestamps,
+             self.hr, self.hr_timestamps)
+        )
+        # Clear all readings collected so far
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
 
     def close(self):
         """
