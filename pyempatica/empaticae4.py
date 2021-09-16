@@ -1,6 +1,7 @@
 import socket
 import threading
 import subprocess
+import time
 
 
 class EmpaticaServerConnectError(Exception):
@@ -217,7 +218,7 @@ class EmpaticaE4:
     """
     Class to wrap the client socket connection and configure the data streams.
     """
-    def __init__(self, device_name):
+    def __init__(self, device_name, window_size=None):
         """
         Initializes the socket connection and connects the Empatica E4 specified.
         :param device_name: str: The Empatica E4 to connect to
@@ -227,6 +228,7 @@ class EmpaticaE4:
         self.connect(device_name)
         while not self.connected:
             pass
+        self.window_size = window_size
         self.suspend_streaming()
         self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
         self.bvp, self.bvp_timestamps = [], []
@@ -245,6 +247,15 @@ class EmpaticaE4:
             "ibi": False,
             "bat": False
         }
+
+    def timer_thread(self):
+        if self.window_size:
+            while self.connected:
+                time.sleep(self.window_size)
+                self.split_window()
+
+    def split_window(self):
+        pass
 
     def close(self):
         """
