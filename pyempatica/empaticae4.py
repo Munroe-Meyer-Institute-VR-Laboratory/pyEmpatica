@@ -125,6 +125,7 @@ class EmpaticaClient:
                                 self.device_list.append(return_bytes[i])
                     elif b'device_connect' in return_bytes:
                         self.device.connected = True
+                        self.device.start_window_timer()
                     elif b'device_subscribe' in return_bytes:
                         self.device.subscribed_streams[return_bytes[2].decode("utf-8")] = \
                             not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
@@ -231,6 +232,7 @@ class EmpaticaE4:
         while not self.connected:
             pass
         self.window_size = window_size
+        self.window_thread = threading.Thread(target=self.timer_thread)
         self.suspend_streaming()
         self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
         self.bvp, self.bvp_timestamps = [], []
@@ -250,6 +252,10 @@ class EmpaticaE4:
             "ibi": False,
             "bat": False
         }
+
+    def start_window_timer(self):
+        if self.window_size:
+            self.window_thread.start()
 
     def timer_thread(self):
         if self.window_size:
