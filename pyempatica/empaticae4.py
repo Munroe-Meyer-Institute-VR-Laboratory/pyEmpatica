@@ -70,6 +70,13 @@ class EmpaticaClient:
         self.reading = True
         self.start_receive_thread()
         self.readings = 0
+        self.last_error = None
+        self.errors = {
+            "EmpaticaServerConnectError": [],
+            "EmpaticaCommandError": [],
+            "EmpaticaDataError": [],
+            "Other": []
+        }
 
     def close(self):
         """
@@ -132,12 +139,15 @@ class EmpaticaClient:
                             not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
                 elif return_bytes[0][0:2] == b'E4':
                     self.handle_data_stream(return_bytes)
-            except ConnectionAbortedError:
-                pass
-            except ConnectionResetError:
-                pass
-            except ConnectionError:
-                pass
+            except ConnectionAbortedError as cae:
+                self.last_error = str(cae)
+                self.errors["Other"].append(str(cae))
+            except ConnectionResetError as cre:
+                self.last_error = str(cre)
+                self.errors["Other"].append(str(cre))
+            except ConnectionError as ce:
+                self.last_error = str(ce)
+                self.errors["Other"].append(str(ce))
 
     def stop_reading_thread(self):
         """
@@ -146,8 +156,7 @@ class EmpaticaClient:
         """
         self.reading = False
 
-    @staticmethod
-    def handle_error_code(error):
+    def handle_error_code(self, error):
         """
         Parses error code for formatting in Exception message.
         :param error: bytes-like error message.
@@ -156,7 +165,8 @@ class EmpaticaClient:
         message = ""
         for err in error:
             message = message + err.decode("utf-8") + " "
-        raise EmpaticaCommandError(message)
+        self.last_error = "EmpaticaCommandError - " + message
+        self.errors["EmpaticaCommandError"].append(message)
 
     def handle_data_stream(self, data):
         """
@@ -202,12 +212,14 @@ class EmpaticaClient:
                 pass
             elif data_type == b'Tag':
                 self.device.tag.append(float(data[2]))
-                self.device.tag_timestamps(float(data[1]))
+                self.device.tag_timestamps.append(float(data[1]))
                 pass
             else:
-                raise EmpaticaDataError(data)
+                self.last_error = "EmpaticaDataError - " + str(data)
+                self.errors["EmpaticaDataError"].append(data)
         except:
-            raise EmpaticaDataError(data)
+            self.last_error = "EmpaticaDataError - " + str(data)
+            self.errors["EmpaticaDataError"].append(data)
 
     def list_connected_devices(self):
         """
