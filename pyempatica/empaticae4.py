@@ -2,6 +2,7 @@ import socket
 import threading
 import subprocess
 import time
+import pickle
 
 
 class EmpaticaServerConnectError(Exception):
@@ -226,13 +227,13 @@ class EmpaticaE4:
         Initializes the socket connection and connects the Empatica E4 specified.
         :param device_name: str: The Empatica E4 to connect to
         """
+        self.window_size = window_size
+        self.window_thread = threading.Thread(target=self.timer_thread)
         self.client = EmpaticaClient()
         self.connected = False
         self.connect(device_name)
         while not self.connected:
             pass
-        self.window_size = window_size
-        self.window_thread = threading.Thread(target=self.timer_thread)
         self.suspend_streaming()
         self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
         self.bvp, self.bvp_timestamps = [], []
@@ -290,6 +291,7 @@ class EmpaticaE4:
         Closes the socket connection.
         :return: None.
         """
+        self.connected = False
         self.client.close()
 
     def send(self, command):
@@ -332,58 +334,62 @@ class EmpaticaE4:
         :param filename: str: full path to file to save to
         :return: None.
         """
-        with open(filename, "w") as file:
-            for reading in self.acc_3d:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.acc_x:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.acc_y:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.acc_z:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.acc_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.gsr:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.gsr_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.bvp:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.bvp_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.tmp:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.tmp_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.hr:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.hr_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.ibi:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.ibi_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.bat:
-                file.write(str(reading) + ",")
-            file.write("\n")
-            for reading in self.bat_timestamps:
-                file.write(str(reading) + ",")
-            file.write("\n")
+        if self.windowed_readings:
+            with open(filename, "wb") as file:
+                pickle.dump(self.windowed_readings, file)
+        else:
+            with open(filename, "w") as file:
+                for reading in self.acc_3d:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.acc_x:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.acc_y:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.acc_z:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.acc_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.gsr:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.gsr_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.bvp:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.bvp_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.tmp:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.tmp_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.hr:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.hr_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.ibi:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.ibi_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.bat:
+                    file.write(str(reading) + ",")
+                file.write("\n")
+                for reading in self.bat_timestamps:
+                    file.write(str(reading) + ",")
+                file.write("\n")
 
     def clear_readings(self):
         """

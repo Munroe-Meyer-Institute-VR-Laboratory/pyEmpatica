@@ -9,7 +9,7 @@ try:
     print("Listing E4 devices...")
     time.sleep(1)
     if len(client.device_list) != 0:
-        e4 = EmpaticaE4(client.device_list[0])
+        e4 = EmpaticaE4(client.device_list[0], window_size=5)
         if e4.connected:
             print("Connected to", client.device_list[0], "device...")
             for stream in EmpaticaDataStreams.ALL_STREAMS:
@@ -21,8 +21,8 @@ try:
             e4.disconnect()
             e4.close()
             print("E4 connection closed, saving readings...")
-            e4.save_readings("readings.txt")
-            print("Readings saved to readings.txt...")
+            e4.save_readings("readings.pkl")
+            print("Readings saved to readings.pkl...")
         else:
             print("Could not connect to Empatica E4:", client.device_list[0])
     client.close()
