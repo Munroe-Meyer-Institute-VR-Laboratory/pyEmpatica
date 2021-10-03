@@ -29,6 +29,8 @@
 <pre><code class="python">import socket
 import threading
 import subprocess
+import time
+import pickle
 
 
 class EmpaticaServerConnectError(Exception):
@@ -79,6 +81,7 @@ class EmpaticaClient:
     &#34;&#34;&#34;
     Client object to handle the socket connection to the Empatica Server.
     &#34;&#34;&#34;
+
     def __init__(self):
         &#34;&#34;&#34;
         Initializes the socket connection and starts the data reception thread.
@@ -151,6 +154,7 @@ class EmpaticaClient:
                                 self.device_list.append(return_bytes[i])
                     elif b&#39;device_connect&#39; in return_bytes:
                         self.device.connected = True
+                        self.device.start_window_timer()
                     elif b&#39;device_subscribe&#39; in return_bytes:
                         self.device.subscribed_streams[return_bytes[2].decode(&#34;utf-8&#34;)] = \
                             not self.device.subscribed_streams.get(return_bytes[2].decode(&#34;utf-8&#34;))
@@ -245,11 +249,14 @@ class EmpaticaE4:
     &#34;&#34;&#34;
     Class to wrap the client socket connection and configure the data streams.
     &#34;&#34;&#34;
-    def __init__(self, device_name):
+
+    def __init__(self, device_name, window_size=None):
         &#34;&#34;&#34;
         Initializes the socket connection and connects the Empatica E4 specified.
         :param device_name: str: The Empatica E4 to connect to
         &#34;&#34;&#34;
+        self.window_size = window_size
+        self.window_thread = threading.Thread(target=self.timer_thread)
         self.client = EmpaticaClient()
         self.connected = False
         self.connect(device_name)
@@ -264,6 +271,7 @@ class EmpaticaE4:
         self.ibi, self.ibi_timestamps = [], []
         self.bat, self.bat_timestamps = [], []
         self.hr, self.hr_timestamps = [], []
+        self.windowed_readings = []
         self.subscribed_streams = {
             &#34;acc&#34;: False,
             &#34;bvp&#34;: False,
@@ -274,11 +282,44 @@ class EmpaticaE4:
             &#34;bat&#34;: False
         }
 
+    def start_window_timer(self):
+        if self.window_size:
+            self.window_thread.start()
+
+    def timer_thread(self):
+        if self.window_size:
+            while self.connected:
+                time.sleep(self.window_size)
+                self.split_window()
+
+    def split_window(self):
+        # Save all the readings to our window
+        self.windowed_readings.append(
+            (self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps,
+             self.bvp, self.bvp_timestamps,
+             self.gsr, self.gsr_timestamps,
+             self.tmp, self.tmp_timestamps,
+             self.tag, self.tag_timestamps,
+             self.ibi, self.ibi_timestamps,
+             self.bat, self.bat_timestamps,
+             self.hr, self.hr_timestamps)
+        )
+        # Clear all readings collected so far
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
+
     def close(self):
         &#34;&#34;&#34;
         Closes the socket connection.
         :return: None.
         &#34;&#34;&#34;
+        self.connected = False
         self.client.close()
 
     def send(self, command):
@@ -321,58 +362,62 @@ class EmpaticaE4:
         :param filename: str: full path to file to save to
         :return: None.
         &#34;&#34;&#34;
-        with open(filename, &#34;w&#34;) as file:
-            for reading in self.acc_3d:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_x:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_y:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_z:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.gsr:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.gsr_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bvp:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bvp_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.tmp:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.tmp_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.hr:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.hr_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.ibi:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.ibi_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bat:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bat_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
+        if self.windowed_readings:
+            with open(filename, &#34;wb&#34;) as file:
+                pickle.dump(self.windowed_readings, file)
+        else:
+            with open(filename, &#34;w&#34;) as file:
+                for reading in self.acc_3d:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_x:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_y:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_z:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.gsr:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.gsr_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bvp:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bvp_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.tmp:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.tmp_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.hr:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.hr_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.ibi:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.ibi_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bat:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bat_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
 
     def clear_readings(self):
         &#34;&#34;&#34;
@@ -473,6 +518,7 @@ class EmpaticaE4:
     &#34;&#34;&#34;
     Client object to handle the socket connection to the Empatica Server.
     &#34;&#34;&#34;
+
     def __init__(self):
         &#34;&#34;&#34;
         Initializes the socket connection and starts the data reception thread.
@@ -545,6 +591,7 @@ class EmpaticaE4:
                                 self.device_list.append(return_bytes[i])
                     elif b&#39;device_connect&#39; in return_bytes:
                         self.device.connected = True
+                        self.device.start_window_timer()
                     elif b&#39;device_subscribe&#39; in return_bytes:
                         self.device.subscribed_streams[return_bytes[2].decode(&#34;utf-8&#34;)] = \
                             not self.device.subscribed_streams.get(return_bytes[2].decode(&#34;utf-8&#34;))
@@ -777,6 +824,7 @@ def handle_error_code(error):
                             self.device_list.append(return_bytes[i])
                 elif b&#39;device_connect&#39; in return_bytes:
                     self.device.connected = True
+                    self.device.start_window_timer()
                 elif b&#39;device_subscribe&#39; in return_bytes:
                     self.device.subscribed_streams[return_bytes[2].decode(&#34;utf-8&#34;)] = \
                         not self.device.subscribed_streams.get(return_bytes[2].decode(&#34;utf-8&#34;))
@@ -990,7 +1038,7 @@ def handle_error_code(error):
 </dd>
 <dt id="pyempatica.empaticae4.EmpaticaE4"><code class="flex name class">
 <span>class <span class="ident">EmpaticaE4</span></span>
-<span>(</span><span>device_name)</span>
+<span>(</span><span>device_name, window_size=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class to wrap the client socket connection and configure the data streams.</p>
@@ -1004,11 +1052,14 @@ def handle_error_code(error):
     &#34;&#34;&#34;
     Class to wrap the client socket connection and configure the data streams.
     &#34;&#34;&#34;
-    def __init__(self, device_name):
+
+    def __init__(self, device_name, window_size=None):
         &#34;&#34;&#34;
         Initializes the socket connection and connects the Empatica E4 specified.
         :param device_name: str: The Empatica E4 to connect to
         &#34;&#34;&#34;
+        self.window_size = window_size
+        self.window_thread = threading.Thread(target=self.timer_thread)
         self.client = EmpaticaClient()
         self.connected = False
         self.connect(device_name)
@@ -1023,6 +1074,7 @@ def handle_error_code(error):
         self.ibi, self.ibi_timestamps = [], []
         self.bat, self.bat_timestamps = [], []
         self.hr, self.hr_timestamps = [], []
+        self.windowed_readings = []
         self.subscribed_streams = {
             &#34;acc&#34;: False,
             &#34;bvp&#34;: False,
@@ -1033,11 +1085,44 @@ def handle_error_code(error):
             &#34;bat&#34;: False
         }
 
+    def start_window_timer(self):
+        if self.window_size:
+            self.window_thread.start()
+
+    def timer_thread(self):
+        if self.window_size:
+            while self.connected:
+                time.sleep(self.window_size)
+                self.split_window()
+
+    def split_window(self):
+        # Save all the readings to our window
+        self.windowed_readings.append(
+            (self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps,
+             self.bvp, self.bvp_timestamps,
+             self.gsr, self.gsr_timestamps,
+             self.tmp, self.tmp_timestamps,
+             self.tag, self.tag_timestamps,
+             self.ibi, self.ibi_timestamps,
+             self.bat, self.bat_timestamps,
+             self.hr, self.hr_timestamps)
+        )
+        # Clear all readings collected so far
+        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+        self.bvp, self.bvp_timestamps = [], []
+        self.gsr, self.gsr_timestamps = [], []
+        self.tmp, self.tmp_timestamps = [], []
+        self.tag, self.tag_timestamps = [], []
+        self.ibi, self.ibi_timestamps = [], []
+        self.bat, self.bat_timestamps = [], []
+        self.hr, self.hr_timestamps = [], []
+
     def close(self):
         &#34;&#34;&#34;
         Closes the socket connection.
         :return: None.
         &#34;&#34;&#34;
+        self.connected = False
         self.client.close()
 
     def send(self, command):
@@ -1080,58 +1165,62 @@ def handle_error_code(error):
         :param filename: str: full path to file to save to
         :return: None.
         &#34;&#34;&#34;
-        with open(filename, &#34;w&#34;) as file:
-            for reading in self.acc_3d:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_x:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_y:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_z:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.acc_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.gsr:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.gsr_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bvp:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bvp_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.tmp:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.tmp_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.hr:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.hr_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.ibi:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.ibi_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bat:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
-            for reading in self.bat_timestamps:
-                file.write(str(reading) + &#34;,&#34;)
-            file.write(&#34;\n&#34;)
+        if self.windowed_readings:
+            with open(filename, &#34;wb&#34;) as file:
+                pickle.dump(self.windowed_readings, file)
+        else:
+            with open(filename, &#34;w&#34;) as file:
+                for reading in self.acc_3d:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_x:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_y:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_z:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.acc_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.gsr:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.gsr_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bvp:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bvp_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.tmp:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.tmp_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.hr:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.hr_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.ibi:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.ibi_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bat:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
+                for reading in self.bat_timestamps:
+                    file.write(str(reading) + &#34;,&#34;)
+                file.write(&#34;\n&#34;)
 
     def clear_readings(self):
         &#34;&#34;&#34;
@@ -1227,6 +1316,7 @@ def handle_error_code(error):
     Closes the socket connection.
     :return: None.
     &#34;&#34;&#34;
+    self.connected = False
     self.client.close()</code></pre>
 </details>
 </dd>
@@ -1307,58 +1397,62 @@ def handle_error_code(error):
     :param filename: str: full path to file to save to
     :return: None.
     &#34;&#34;&#34;
-    with open(filename, &#34;w&#34;) as file:
-        for reading in self.acc_3d:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.acc_x:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.acc_y:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.acc_z:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.acc_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.gsr:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.gsr_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.bvp:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.bvp_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.tmp:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.tmp_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.hr:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.hr_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.ibi:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.ibi_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.bat:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)
-        for reading in self.bat_timestamps:
-            file.write(str(reading) + &#34;,&#34;)
-        file.write(&#34;\n&#34;)</code></pre>
+    if self.windowed_readings:
+        with open(filename, &#34;wb&#34;) as file:
+            pickle.dump(self.windowed_readings, file)
+    else:
+        with open(filename, &#34;w&#34;) as file:
+            for reading in self.acc_3d:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_x:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_y:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_z:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.acc_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.gsr:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.gsr_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bvp:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bvp_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.tmp:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.tmp_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.hr:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.hr_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.ibi:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.ibi_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bat:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)
+            for reading in self.bat_timestamps:
+                file.write(str(reading) + &#34;,&#34;)
+            file.write(&#34;\n&#34;)</code></pre>
 </details>
 </dd>
 <dt id="pyempatica.empaticae4.EmpaticaE4.send"><code class="name flex">
@@ -1381,6 +1475,38 @@ def handle_error_code(error):
     self.client.send(command)</code></pre>
 </details>
 </dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.split_window"><code class="name flex">
+<span>def <span class="ident">split_window</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def split_window(self):
+    # Save all the readings to our window
+    self.windowed_readings.append(
+        (self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps,
+         self.bvp, self.bvp_timestamps,
+         self.gsr, self.gsr_timestamps,
+         self.tmp, self.tmp_timestamps,
+         self.tag, self.tag_timestamps,
+         self.ibi, self.ibi_timestamps,
+         self.bat, self.bat_timestamps,
+         self.hr, self.hr_timestamps)
+    )
+    # Clear all readings collected so far
+    self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
+    self.bvp, self.bvp_timestamps = [], []
+    self.gsr, self.gsr_timestamps = [], []
+    self.tmp, self.tmp_timestamps = [], []
+    self.tag, self.tag_timestamps = [], []
+    self.ibi, self.ibi_timestamps = [], []
+    self.bat, self.bat_timestamps = [], []
+    self.hr, self.hr_timestamps = [], []</code></pre>
+</details>
+</dd>
 <dt id="pyempatica.empaticae4.EmpaticaE4.start_streaming"><code class="name flex">
 <span>def <span class="ident">start_streaming</span></span>(<span>self)</span>
 </code></dt>
@@ -1398,6 +1524,20 @@ def handle_error_code(error):
     &#34;&#34;&#34;
     command = b&#39;pause OFF\r\n&#39;
     self.send(command)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.start_window_timer"><code class="name flex">
+<span>def <span class="ident">start_window_timer</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start_window_timer(self):
+    if self.window_size:
+        self.window_thread.start()</code></pre>
 </details>
 </dd>
 <dt id="pyempatica.empaticae4.EmpaticaE4.subscribe_to_stream"><code class="name flex">
@@ -1440,6 +1580,22 @@ def handle_error_code(error):
     &#34;&#34;&#34;
     command = b&#39;pause ON\r\n&#39;
     self.send(command)</code></pre>
+</details>
+</dd>
+<dt id="pyempatica.empaticae4.EmpaticaE4.timer_thread"><code class="name flex">
+<span>def <span class="ident">timer_thread</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def timer_thread(self):
+    if self.window_size:
+        while self.connected:
+            time.sleep(self.window_size)
+            self.split_window()</code></pre>
 </details>
 </dd>
 <dt id="pyempatica.empaticae4.EmpaticaE4.unsubscribe_from_stream"><code class="name flex">
@@ -1553,9 +1709,12 @@ def handle_error_code(error):
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.receive" href="#pyempatica.empaticae4.EmpaticaE4.receive">receive</a></code></li>
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.save_readings" href="#pyempatica.empaticae4.EmpaticaE4.save_readings">save_readings</a></code></li>
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.send" href="#pyempatica.empaticae4.EmpaticaE4.send">send</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.split_window" href="#pyempatica.empaticae4.EmpaticaE4.split_window">split_window</a></code></li>
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.start_streaming" href="#pyempatica.empaticae4.EmpaticaE4.start_streaming">start_streaming</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.start_window_timer" href="#pyempatica.empaticae4.EmpaticaE4.start_window_timer">start_window_timer</a></code></li>
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.subscribe_to_stream" href="#pyempatica.empaticae4.EmpaticaE4.subscribe_to_stream">subscribe_to_stream</a></code></li>
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.suspend_streaming" href="#pyempatica.empaticae4.EmpaticaE4.suspend_streaming">suspend_streaming</a></code></li>
+<li><code><a title="pyempatica.empaticae4.EmpaticaE4.timer_thread" href="#pyempatica.empaticae4.EmpaticaE4.timer_thread">timer_thread</a></code></li>
 <li><code><a title="pyempatica.empaticae4.EmpaticaE4.unsubscribe_from_stream" href="#pyempatica.empaticae4.EmpaticaE4.unsubscribe_from_stream">unsubscribe_from_stream</a></code></li>
 </ul>
 </li>
