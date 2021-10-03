@@ -122,7 +122,6 @@ class EmpaticaClient:
                 return_bytes = return_bytes.split()
                 if return_bytes:
                     if return_bytes[0] == b'R':
-                        print(return_bytes)
                         if b'ERR' in return_bytes:
                             self.handle_error_code(return_bytes)
                         elif b'connection' in return_bytes:
