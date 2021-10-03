@@ -20,6 +20,9 @@ try:
             e4.suspend_streaming()
             e4.disconnect()
             e4.close()
+            print("E4 Errors")
+            for key in e4.client.errors:
+                print("\t", key, ":", e4.client.errors[key])
             print("E4 connection closed, saving readings...")
             e4.save_readings("readings.txt")
             print("Readings saved to readings.txt...")

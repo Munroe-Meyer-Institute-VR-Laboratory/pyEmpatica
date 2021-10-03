@@ -120,25 +120,29 @@ class EmpaticaClient:
             try:
                 return_bytes = self.socket_conn.recv(4096)
                 return_bytes = return_bytes.split()
-                if return_bytes[0] == b'R':
-                    if b'ERR' in return_bytes:
-                        self.handle_error_code(return_bytes)
-                    elif b'connection' in return_bytes:
-                        self.handle_error_code(return_bytes)
-                    elif b'device' in return_bytes:
-                        self.handle_error_code(return_bytes)
-                    elif b'device_list' in return_bytes:
-                        for i in range(4, len(return_bytes), 2):
-                            if return_bytes[i + 1] == b'Empatica_E4':
-                                self.device_list.append(return_bytes[i])
-                    elif b'device_connect' in return_bytes:
-                        self.device.connected = True
-                        self.device.start_window_timer()
-                    elif b'device_subscribe' in return_bytes:
-                        self.device.subscribed_streams[return_bytes[2].decode("utf-8")] = \
-                            not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
-                elif return_bytes[0][0:2] == b'E4':
-                    self.handle_data_stream(return_bytes)
+                if return_bytes:
+                    if return_bytes[0] == b'R':
+                        print(return_bytes)
+                        if b'ERR' in return_bytes:
+                            self.handle_error_code(return_bytes)
+                        elif b'connection' in return_bytes:
+                            self.handle_error_code(return_bytes)
+                        elif b'device' in return_bytes:
+                            self.handle_error_code(return_bytes)
+                        elif b'device_list' in return_bytes:
+                            for i in range(4, len(return_bytes), 2):
+                                if return_bytes[i + 1] == b'Empatica_E4':
+                                    self.device_list.append(return_bytes[i])
+                        elif b'device_connect' in return_bytes:
+                            self.device.connected = True
+                            self.device.start_window_timer()
+                        elif b'device_disconnect' in return_bytes:
+                            self.device.connected = False
+                        elif b'device_subscribe' in return_bytes:
+                            self.device.subscribed_streams[return_bytes[2].decode("utf-8")] = \
+                                not self.device.subscribed_streams.get(return_bytes[2].decode("utf-8"))
+                    elif return_bytes[0][0:2] == b'E4':
+                        self.handle_data_stream(return_bytes)
             except ConnectionAbortedError as cae:
                 self.last_error = str(cae)
                 self.errors["Other"].append(str(cae))
@@ -233,7 +237,6 @@ class EmpaticaE4:
     """
     Class to wrap the client socket connection and configure the data streams.
     """
-
     def __init__(self, device_name, window_size=None):
         """
         Initializes the socket connection and connects the Empatica E4 specified.
@@ -338,6 +341,8 @@ class EmpaticaE4:
         """
         command = b'device_disconnect\r\n'
         self.send(command)
+        while self.connected:
+            pass
         self.client.stop_reading_thread()
 
     def save_readings(self, filename):
