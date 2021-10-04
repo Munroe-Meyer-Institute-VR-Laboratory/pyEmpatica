@@ -83,8 +83,11 @@ class EmpaticaClient:
         Stops the reading thread and closes the socket.
         :return: None.
         """
-        self.stop_reading_thread()
-        self.socket_conn.close()
+        try:
+            self.stop_reading_thread()
+            self.socket_conn.close()
+        except Exception as e:
+            self.errors["Other"].append(str(e))
 
     def send(self, packet):
         """
@@ -92,14 +95,20 @@ class EmpaticaClient:
         :param packet: str command
         :return: None.
         """
-        self.socket_conn.send(packet)
+        try:
+            self.socket_conn.send(packet)
+        except Exception as e:
+            self.errors["Other"].append(str(e))
 
     def recv(self):
         """
         Blocking method to receive a packet from the Empatica Server.
         :return: bytes-like.
         """
-        return self.socket_conn.recv(4096)
+        try:
+            return self.socket_conn.recv(4096)
+        except Exception as e:
+            self.errors["Other"].append(str(e))
 
     def start_receive_thread(self):
         """
@@ -145,12 +154,21 @@ class EmpaticaClient:
             except ConnectionAbortedError as cae:
                 self.last_error = str(cae)
                 self.errors["Other"].append(str(cae))
+                self.reading = False
+                if self.device:
+                    self.device.connected = False
             except ConnectionResetError as cre:
                 self.last_error = str(cre)
                 self.errors["Other"].append(str(cre))
+                self.reading = False
+                if self.device:
+                    self.device.connected = False
             except ConnectionError as ce:
                 self.last_error = str(ce)
                 self.errors["Other"].append(str(ce))
+                self.reading = False
+                if self.device:
+                    self.device.connected = False
 
     def stop_reading_thread(self):
         """
@@ -188,35 +206,27 @@ class EmpaticaClient:
                 self.device.acc_y.append(float(data[3]))
                 self.device.acc_z.append(float(data[4]))
                 self.device.acc_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Bvp':
                 self.device.bvp.append(float(data[2]))
                 self.device.bvp_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Gsr':
                 self.device.gsr.append(float(data[2]))
                 self.device.gsr_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Temperature':
                 self.device.tmp.append(float(data[2]))
                 self.device.tmp_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Ibi':
                 self.device.ibi.append(float(data[2]))
                 self.device.ibi_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Hr':
                 self.device.hr.append(float(data[2]))
                 self.device.hr_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Battery':
                 self.device.bat.append(float(data[2]))
                 self.device.bat_timestamps.append(float(data[1]))
-                pass
             elif data_type == b'Tag':
                 self.device.tag.append(float(data[2]))
                 self.device.tag_timestamps.append(float(data[1]))
-                pass
             else:
                 self.last_error = "EmpaticaDataError - " + str(data)
                 self.errors["EmpaticaDataError"].append(data)
@@ -330,8 +340,10 @@ class EmpaticaE4:
         :return: None.
         """
         command = b'device_connect ' + device_name + b'\r\n'
-        self.send(command)
         self.client.device = self
+        self.send(command)
+        while not self.connected:
+            pass
 
     def disconnect(self):
         """

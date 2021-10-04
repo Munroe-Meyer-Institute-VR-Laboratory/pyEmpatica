@@ -16,7 +16,11 @@ try:
                 e4.subscribe_to_stream(stream)
             print("Subscribed to all streams, starting streaming...")
             e4.start_streaming()
-            time.sleep(10)
+            for i in range(0, 10):
+                time.sleep(1)
+                if e4.client.last_error:
+                    print("Error encountered:", e4.client.last_error)
+                    break
             e4.suspend_streaming()
             e4.disconnect()
             e4.close()
