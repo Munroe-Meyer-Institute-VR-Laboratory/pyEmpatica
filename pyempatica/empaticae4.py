@@ -212,6 +212,10 @@ class EmpaticaClient:
             elif data_type == b'Gsr':
                 self.device.gsr.append(float(data[2]))
                 self.device.gsr_timestamps.append(float(data[1]))
+                if all(ele == 0 for ele in self.device.gsr[-self.device.wrist_sensitivity:]):
+                    self.device.on_wrist = False
+                else:
+                    self.device.on_wrist = True
             elif data_type == b'Temperature':
                 self.device.tmp.append(float(data[2]))
                 self.device.tmp_timestamps.append(float(data[1]))
@@ -230,9 +234,9 @@ class EmpaticaClient:
             else:
                 self.last_error = "EmpaticaDataError - " + str(data)
                 self.errors["EmpaticaDataError"].append(data)
-        except:
-            self.last_error = "EmpaticaDataError - " + str(data)
-            self.errors["EmpaticaDataError"].append(data)
+        except Exception as e:
+            self.last_error = "EmpaticaDataError - " + str(data) + str(e)
+            self.errors["EmpaticaDataError"].append(str(data) + str(e))
 
     def list_connected_devices(self):
         """
@@ -246,12 +250,14 @@ class EmpaticaE4:
     """
     Class to wrap the client socket connection and configure the data streams.
     """
-    def __init__(self, device_name, window_size=None):
+    def __init__(self, device_name, window_size=None, wrist_sensitivity=1):
         """
         Initializes the socket connection and connects the Empatica E4 specified.
         :param device_name: str: The Empatica E4 to connect to
         """
+        self.wrist_sensitivity = wrist_sensitivity
         self.window_size = window_size
+        self.on_wrist = False
         self.window_thread = threading.Thread(target=self.timer_thread)
         self.client = EmpaticaClient()
         self.connected = False
