@@ -254,6 +254,8 @@ class EmpaticaE4:
         """
         Initializes the socket connection and connects the Empatica E4 specified.
         :param device_name: str: The Empatica E4 to connect to
+        :param window_size: int: The size of windows in seconds, default None
+        :param wrist_sensitivity: int: The number of samples to determine if E4 is on wrist, default is one
         """
         self.wrist_sensitivity = wrist_sensitivity
         self.window_size = window_size
@@ -285,32 +287,44 @@ class EmpaticaE4:
         }
 
     def start_window_timer(self):
+        """
+
+        :return:
+        """
         if self.window_size:
             self.window_thread.start()
 
     def timer_thread(self):
+        """
+
+        :return:
+        """
         if self.window_size:
             while self.connected:
                 time.sleep(self.window_size)
                 self.split_window()
 
     def split_window(self):
+        """
+
+        :return:
+        """
         # Save all the readings to our window
         self.windowed_readings.append(
-            (self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps,
-             self.bvp, self.bvp_timestamps,
-             self.gsr, self.gsr_timestamps,
-             self.tmp, self.tmp_timestamps,
+            (self.acc_3d[-(32*3)*self.window_size:],
+             self.acc_x[-32*self.window_size:],
+             self.acc_y[-32*self.window_size:],
+             self.acc_z[-32*self.window_size:],
+             self.acc_timestamps[-32*self.window_size:],
+             self.bvp[-64*self.window_size:], self.bvp_timestamps[-64*self.window_size:],
+             self.gsr[-4*self.window_size:], self.gsr_timestamps[-4*self.window_size:],
+             self.tmp[-4*self.window_size:], self.tmp_timestamps[-4*self.window_size:],
              self.tag, self.tag_timestamps,
              self.ibi, self.ibi_timestamps,
              self.bat, self.bat_timestamps,
              self.hr, self.hr_timestamps)
         )
         # Clear all readings collected so far
-        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
-        self.bvp, self.bvp_timestamps = [], []
-        self.gsr, self.gsr_timestamps = [], []
-        self.tmp, self.tmp_timestamps = [], []
         self.tag, self.tag_timestamps = [], []
         self.ibi, self.ibi_timestamps = [], []
         self.bat, self.bat_timestamps = [], []
