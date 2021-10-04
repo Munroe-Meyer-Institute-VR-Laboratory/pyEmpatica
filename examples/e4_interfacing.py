@@ -11,13 +11,15 @@ try:
     if len(client.device_list) != 0:
         e4 = EmpaticaE4(client.device_list[0])
         if e4.connected:
-            print("Connected to", client.device_list[0], "device...")
+            print("Connected to", str(client.device_list[0]), "device...")
             for stream in EmpaticaDataStreams.ALL_STREAMS:
                 e4.subscribe_to_stream(stream)
             print("Subscribed to all streams, starting streaming...")
             e4.start_streaming()
             for i in range(0, 10):
                 time.sleep(1)
+                if not e4.on_wrist:
+                    print("E4 is not on wrist, please put it on!")
                 if e4.client.last_error:
                     print("Error encountered:", e4.client.last_error)
                     break
