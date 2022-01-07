@@ -53,3 +53,50 @@ Before running this script, ensure the Empatica Streaming Server is up and runni
       year = {2021}
 }
 ```
+
+### Library Metadata
+<div itemscope itemtype="http://schema.org/Dataset">
+<table>
+<tr>
+<th>property</th>
+<th>value</th>
+</tr>
+<tr>
+<td>name</td>
+<td><code itemprop="name">pyEmpatica - A Python Library for the Empatica E4</code></td>
+</tr>
+<tr>
+<td>description</td>
+<td><code itemprop="description">This Python library was written to facilitate biometric data collection from an Empatica E4. It also includes windowed sample collection, threaded error handling, and on-wrist detection.</code></td>
+</tr>
+</tr>
+<tr>
+<td>url</td>
+<td><code itemprop="url">https://github.com/Munroe-Meyer-Institute-VR-Laboratory/pyEmpatica</code></td>
+</tr>
+<tr>
+<td>sameAs</td>
+<td><code itemprop="sameAs">https://github.com/Munroe-Meyer-Institute-VR-Laboratory/pyEmpatica</code></td>
+</tr>
+<tr>
+<td>citation</td>
+<td><code itemprop="citation">Arce, W., & Gehringer, J. (2021). pyEmpatica (Version v0.1.0) [Computer software]. https://github.com/Munroe-Meyer-Institute-VR-Laboratory/pyEmpatica</code></td>
+</tr>
+<tr>
+<td>license</td>
+<td>
+<div itemscope itemtype="http://schema.org/CreativeWork" itemprop="license">
+<table>
+<tr>
+<th>property</th>
+<th>value</th>
+</tr>
+<tr>
+<td>name</td>
+<td><code itemprop="name">MIT</code></td>
+</tr>
+<tr>
+<td>url</td>
+<td><code itemprop="url">https://opensource.org/licenses/MIT</code></td>
+</tr>
+</div>
