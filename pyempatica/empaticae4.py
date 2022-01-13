@@ -138,6 +138,7 @@ class EmpaticaClient:
                         elif b'device' in return_bytes:
                             self.handle_error_code(return_bytes)
                         elif b'device_list' in return_bytes:
+                            self.device_list = []
                             for i in range(4, len(return_bytes), 2):
                                 if return_bytes[i + 1] == b'Empatica_E4':
                                     self.device_list.append(return_bytes[i])
