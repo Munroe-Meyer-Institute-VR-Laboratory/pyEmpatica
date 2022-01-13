@@ -288,7 +288,7 @@ class EmpaticaE4:
 
     def start_window_timer(self):
         """
-
+        Starts the window timer thread.
         :return:
         """
         if self.window_size:
@@ -296,17 +296,17 @@ class EmpaticaE4:
 
     def timer_thread(self):
         """
-
+        Thread that will split window after window elapses.
         :return:
         """
         if self.window_size:
             while self.connected:
-                time.sleep(self.window_size)
+                time.sleep(self.window_size - time.monotonic() % self.window_size)
                 self.split_window()
 
     def split_window(self):
         """
-
+        Splits the current dataset into window and saves it to windowed_readings.
         :return:
         """
         # Save all the readings to our window
@@ -353,26 +353,34 @@ class EmpaticaE4:
         """
         return self.client.recv()
 
-    def connect(self, device_name):
+    def connect(self, device_name, timeout=5):
         """
         Sends the connect command packet to the Empatica Server.
+        :param timeout: int: seconds before EmpaticaServerConnectError raised
         :param device_name: bytes-like: Empatica E4 to connect to
         :return: None.
         """
         command = b'device_connect ' + device_name + b'\r\n'
         self.client.device = self
         self.send(command)
+        start_time = time.time()
         while not self.connected:
+            if time.time() - start_time > timeout:
+                raise EmpaticaServerConnectError(f"Could not connect to {device_name}!")
             pass
 
-    def disconnect(self):
+    def disconnect(self, timeout=5):
         """
         Sends the disconnect command packet to the Empatica Server.
+        :param timeout: int: seconds before EmpaticaServerConnectError raised
         :return: None.
         """
         command = b'device_disconnect\r\n'
         self.send(command)
+        start_time = time.time()
         while self.connected:
+            if time.time() - start_time > timeout:
+                raise EmpaticaServerConnectError(f"Could not disconnect from device!")
             pass
         self.client.stop_reading_thread()
 
@@ -453,26 +461,34 @@ class EmpaticaE4:
         self.bat, self.bat_timestamps = [], []
         self.hr, self.hr_timestamps = [], []
 
-    def subscribe_to_stream(self, stream):
+    def subscribe_to_stream(self, stream, timeout=5):
         """
         Subscribes the socket connection to a data stream, blocks until the Empatica Server responds.
+        :param timeout: int: seconds before EmpaticaServerConnectError raised
         :param stream: bytes-like: data to stream.
         :return: None.
         """
         command = b'device_subscribe ' + stream + b' ON\r\n'
         self.send(command)
+        start_time = time.time()
         while not self.subscribed_streams.get(stream.decode("utf-8")):
+            if time.time() - start_time > timeout:
+                raise EmpaticaServerConnectError(f"Could not subscribe to {stream}!")
             pass
 
-    def unsubscribe_from_stream(self, stream):
+    def unsubscribe_from_stream(self, stream, timeout=5):
         """
         Unsubscribes the socket connection from a data stream, blocks until the Empatica Server responds.
+        :param timeout: int: seconds before EmpaticaServerConnectError raised
         :param stream: bytes-like: data to stop streaming.
         :return: None.
         """
         command = b'device_subscribe ' + stream + b' OFF\r\n'
         self.send(command)
+        start_time = time.time()
         while self.subscribed_streams.get(stream.decode("utf-8")):
+            if time.time() - start_time > timeout:
+                raise EmpaticaServerConnectError(f"Could not unsubscribe to {stream}!")
             pass
 
     def suspend_streaming(self):

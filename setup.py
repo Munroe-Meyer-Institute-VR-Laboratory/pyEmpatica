@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pyEmpatica',
-      version='0.4.5',
+      version='0.5.5',
       url='https://github.com/Munroe-Meyer-Institute-VR-Laboratory/pyEmpatica',
       author='Walker Arce',
       author_email='walker.arce@unmc.edu',
