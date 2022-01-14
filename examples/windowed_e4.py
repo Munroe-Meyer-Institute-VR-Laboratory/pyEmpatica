@@ -1,4 +1,4 @@
-from pyempatica.empaticae4 import EmpaticaClient, EmpaticaE4, EmpaticaDataStreams, EmpaticaServerConnectError
+from pyempatica import EmpaticaClient, EmpaticaE4, EmpaticaDataStreams, EmpaticaServerConnectError
 import time
 
 
