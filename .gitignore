@@ -10,7 +10,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+dist_old/
 downloads/
 eggs/
 .eggs/
@@ -128,3 +128,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/dist/

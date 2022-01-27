@@ -1,4 +1,4 @@
-from pyempatica import EmpaticaClient, EmpaticaE4, EmpaticaDataStreams, EmpaticaServerConnectError
+from src.pyempatica import EmpaticaClient, EmpaticaE4, EmpaticaDataStreams, EmpaticaServerConnectError
 import time
 
 
@@ -9,14 +9,14 @@ try:
     print("Listing E4 devices...")
     time.sleep(1)
     if len(client.device_list) != 0:
-        e4 = EmpaticaE4(client.device_list[0], window_size=5)
+        e4 = EmpaticaE4(client.device_list[0])
         if e4.connected:
             print("Connected to", str(client.device_list[0]), "device...")
             for stream in EmpaticaDataStreams.ALL_STREAMS:
                 e4.subscribe_to_stream(stream)
             print("Subscribed to all streams, starting streaming...")
             e4.start_streaming()
-            for i in range(0, 100):
+            for i in range(0, 10):
                 time.sleep(1)
                 if not e4.on_wrist:
                     print("E4 is not on wrist, please put it on!")
@@ -30,8 +30,8 @@ try:
             for key in e4.client.errors:
                 print("\t", key, ":", e4.client.errors[key])
             print("E4 connection closed, saving readings...")
-            e4.save_readings("readings.pkl")
-            print("Readings saved to readings.pkl...")
+            e4.save_readings("readings.txt")
+            print("Readings saved to readings.txt...")
         else:
             print("Could not connect to Empatica E4:", client.device_list[0])
     client.close()
