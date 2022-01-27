@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pyEmpatica",
-    version="0.5.6",
+    version="0.5.7",
     author="Walker Arce",
     author_email="walker.arce@unmc.edu",
     description="Communicate with your Empatica E4 in your Python scripts.",
