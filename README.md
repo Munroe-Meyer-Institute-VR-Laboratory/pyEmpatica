@@ -59,7 +59,7 @@ try:
     client.close()
     print("Cleaning up connections...")
 except EmpaticaServerConnectError:
-    print("Failed to connect to server, check the the E4 Streaming Server is open and connected to the BLE dongle.")
+    print("Failed to connect to server, check that the E4 Streaming Server is open and connected to the BLE dongle.")
 
 ```
 
