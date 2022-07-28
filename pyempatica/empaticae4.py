@@ -3,6 +3,7 @@ import threading
 import subprocess
 import time
 import pickle
+from datetime import datetime, timezone
 
 
 class EmpaticaServerConnectError(Exception):
@@ -287,6 +288,15 @@ class EmpaticaE4:
             "bat": False
         }
 
+    @staticmethod
+    def get_unix_timestamp(current_time=None):
+        if current_time:
+            dt = current_time
+        else:
+            dt = datetime.now(timezone.utc)
+        utc_time = dt.replace(tzinfo=timezone.utc)
+        return utc_time.timestamp()
+
     def start_window_timer(self):
         """
         Starts the window timer thread.
@@ -453,14 +463,14 @@ class EmpaticaE4:
         Clears the readings collected.
         :return: None.
         """
-        self.acc_3d, self.acc_x, self.acc_y, self.acc_z, self.acc_timestamps = [], [], [], [], []
-        self.bvp, self.bvp_timestamps = [], []
-        self.gsr, self.gsr_timestamps = [], []
-        self.tmp, self.tmp_timestamps = [], []
-        self.tag, self.tag_timestamps = [], []
-        self.ibi, self.ibi_timestamps = [], []
-        self.bat, self.bat_timestamps = [], []
-        self.hr, self.hr_timestamps = [], []
+        self.acc_3d[:], self.acc_x[:], self.acc_y[:], self.acc_z[:], self.acc_timestamps[:] = [], [], [], [], []
+        self.bvp[:], self.bvp_timestamps[:] = [], []
+        self.gsr[:], self.gsr_timestamps[:] = [], []
+        self.tmp[:], self.tmp_timestamps[:] = [], []
+        self.tag[:], self.tag_timestamps[:] = [], []
+        self.ibi[:], self.ibi_timestamps[:] = [], []
+        self.bat[:], self.bat_timestamps[:] = [], []
+        self.hr[:], self.hr_timestamps[:] = [], []
 
     def subscribe_to_stream(self, stream, timeout=5):
         """
