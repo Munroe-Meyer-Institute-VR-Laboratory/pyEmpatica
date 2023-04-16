@@ -19,6 +19,8 @@ For developers, clone this repository, cd into the directory using either your v
 To actually utilize this library the Empatica Streaming Server is required, meaning this library is only compatible with Windows systems.
 
 ### Usage
+As of version 1.0.3 of the E4 Streaming Server, it seems there are issues with connecting the Empatica E4 for data collection.  Follow [this](https://github.com/Munroe-Meyer-Institute-VR-Laboratory/pyEmpatica/issues/1#issuecomment-1510454468) workaround to alleviate this issue. 
+
 ```
 from pyempatica import EmpaticaClient, EmpaticaE4, EmpaticaDataStreams, EmpaticaServerConnectError
 import time
